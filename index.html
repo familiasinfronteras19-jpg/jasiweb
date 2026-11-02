@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JasiWeb</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#" aria-label="JasiWeb, inicio"><span class="mark">J</span><span class="word">JASI<b>WEB</b></span></a>
+    <label class="search"><input id="q" type="search" placeholder="Buscar apps" aria-label="Buscar apps"></label>
+  </div>
+</header>
+
+<section class="wrap hero" id="hero" aria-label="App destacada"></section>
+
+<main class="wrap">
+  <p class="count" id="count" aria-live="polite"></p>
+  <div class="grid" id="grid"></div>
+  <p class="status" id="status"></p>
+</main>
+
+<div class="overlay" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle" id="sheet"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
