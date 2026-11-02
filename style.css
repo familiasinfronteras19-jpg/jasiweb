@@ -48,8 +48,16 @@ a{color:inherit}
 .feat:hover .cta{background:var(--red-hot)}
 .giant{justify-self:end;font:900 clamp(160px,26vw,320px)/.8 var(--display);color:transparent;-webkit-text-stroke:2px var(--red);user-select:none;pointer-events:none}
 
+/* Categorías */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px}
+.chips:empty{display:none}
+.chip{background:transparent;border:1px solid var(--line);border-radius:2px;padding:7px 14px;cursor:pointer;font-size:14px}
+.chip:hover{border-color:var(--red)}
+.chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--on-red);font-weight:600}
+
 .count{font:400 12px/1 var(--mono);color:var(--muted);letter-spacing:.06em;margin-top:32px}
-:is(.card,.feat,.close,.dl,.link):focus-visible{outline:2px solid var(--red-hot);outline-offset:2px}
+.chips:not(:empty)+.count{margin-top:18px}
+:is(.card,.feat,.close,.dl,.link,.chip):focus-visible{outline:2px solid var(--red-hot);outline-offset:2px}
 
 /* Rejilla */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:14px;margin-top:14px}
