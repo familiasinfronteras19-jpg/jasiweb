@@ -18,7 +18,7 @@
   ];
 
   var $ = function(id){return document.getElementById(id)};
-  var state = {apps:[], q:""};
+  var state = {apps:[], q:"", cat:""};
   var lastFocus = null;
 
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -49,20 +49,45 @@
     return rows.filter(function(r){return r.some(function(x){return x.trim()})});
   }
 
+  /* Categoría: se lee de la columna D con el formato  Categoría: Juegos  (también vale Categorías o Tipo) */
+  function catOf(specs){
+    for(var i=0;i<specs.length;i++){
+      if(/^(categoria|categorias|tipo)$/.test(norm(specs[i].k)))return specs[i].v;
+    }
+    return "";
+  }
+
   /* Por posición: A nombre, B enlace, C descripción, D especificaciones. Se ignora la fila de títulos. */
   function clean(rows){
     if(rows.length&&/^(app|apps|nombre|nombre de la app|nombre app)$/i.test((rows[0][0]||"").trim()))rows=rows.slice(1);
     return rows.filter(function(r){return (r[0]||"").trim()}).map(function(r,i){
       var link=(r[1]||"").trim();
-      return {i:i,nombre:r[0].trim(),enlace:/^https?:/i.test(link)?link:"",descripcion:(r[2]||"").trim(),specs:parseSpecs(r[3])};
+      var specs=parseSpecs(r[3]);
+      return {i:i,nombre:r[0].trim(),enlace:/^https?:/i.test(link)?link:"",descripcion:(r[2]||"").trim(),specs:specs,cat:catOf(specs)};
     });
   }
 
   function visible(){
     var q=norm(state.q);
     return state.apps.filter(function(a){
+      if(state.cat&&norm(a.cat)!==state.cat)return false;
       return !q||norm(a.nombre+" "+a.descripcion+" "+a.specs.map(function(s){return s.k+" "+s.v}).join(" ")).indexOf(q)>=0;
     });
+  }
+
+  /* Botones de categoría: salen solos de lo que escribas en la columna D */
+  function renderChips(){
+    var seen={},list=[];
+    state.apps.forEach(function(a){
+      var k=norm(a.cat);
+      if(k&&!seen[k]){seen[k]=1;list.push({k:k,label:a.cat})}
+    });
+    if(!list.length){$("chips").innerHTML="";return}
+    list.sort(function(a,b){return a.label.localeCompare(b.label,"es")});
+    list.unshift({k:"",label:"Todas"});
+    $("chips").innerHTML=list.map(function(c){
+      return '<button class="chip" type="button" data-cat="'+esc(c.k)+'" aria-pressed="'+(c.k===state.cat)+'">'+esc(c.label)+'</button>';
+    }).join("");
   }
 
   function renderHero(){
@@ -118,14 +143,16 @@
 
   function start(rows,msg){
     state.apps=clean(rows);
-    renderHero();renderGrid();$("status").textContent=msg;
+    renderHero();renderChips();renderGrid();$("status").textContent=msg;
   }
 
   document.addEventListener("click",function(e){
     var t=e.target;
+    var chip=t.closest&&t.closest(".chip");
+    if(chip){state.cat=chip.getAttribute("data-cat");renderChips();renderGrid();return}
     var open=t.closest&&t.closest("[data-i]");
     if(open){openApp(parseInt(open.getAttribute("data-i"),10));return}
-    if(t.id==="reset"){state.q="";$("q").value="";renderGrid();return}
+    if(t.id==="reset"){state.q="";state.cat="";$("q").value="";renderChips();renderGrid();return}
     if(t.id==="closeBtn"||t.id==="modal")closeApp();
   });
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("modal").hidden)closeApp()});
