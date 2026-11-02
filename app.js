@@ -28,7 +28,7 @@
 
   /* Columna D: "Clave: valor | Clave: valor", también acepta ; o saltos de línea */
   function parseSpecs(s){
-    return String(s||"").split(/\s*(?:\||;|\n)\s*/).map(function(p){
+    return String(s||"").split(/\s*(?:\||;|\n)\s*|\s+\.\s+/).map(function(p){
       p=p.trim();if(!p)return null;
       var m=p.match(/^([^:]{1,40}):\s*(.+)$/);
       return m?{k:m[1].trim(),v:m[2].trim()}:{k:"Dato",v:p};
