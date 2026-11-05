@@ -57,13 +57,15 @@
     return "";
   }
 
-  /* Por posición: A nombre, B enlace, C descripción, D especificaciones. Se ignora la fila de títulos. */
+  /* Por posición: A nombre, B enlace, C descripción, D especificaciones, E categoría. Se ignora la fila de títulos. */
   function clean(rows){
     if(rows.length&&/^(app|apps|nombre|nombre de la app|nombre app)$/i.test((rows[0][0]||"").trim()))rows=rows.slice(1);
     return rows.filter(function(r){return (r[0]||"").trim()}).map(function(r,i){
       var link=(r[1]||"").trim();
       var specs=parseSpecs(r[3]);
-      return {i:i,nombre:r[0].trim(),enlace:/^https?:/i.test(link)?link:"",descripcion:(r[2]||"").trim(),specs:specs,cat:catOf(specs)};
+      var catE=(r[4]||"").trim();
+      if(catE)specs.unshift({k:"Categoría",v:catE});
+      return {i:i,nombre:r[0].trim(),enlace:/^https?:/i.test(link)?link:"",descripcion:(r[2]||"").trim(),specs:specs,cat:catE||catOf(specs)};
     });
   }
 
@@ -75,7 +77,7 @@
     });
   }
 
-  /* Botones de categoría: salen solos de lo que escribas en la columna D */
+  /* Botones de categoría: salen solos de lo que escribas en la columna E */
   function renderChips(){
     var seen={},list=[];
     state.apps.forEach(function(a){
