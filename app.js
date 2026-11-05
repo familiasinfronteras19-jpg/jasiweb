@@ -57,6 +57,11 @@
     return "";
   }
 
+  /* Varias categorías en una misma celda: sepáralas con coma, por ejemplo  Juegos, Desarrollo */
+  function splitCats(s){
+    return String(s||"").split(/\s*[,;]\s*/).map(function(x){return x.trim()}).filter(Boolean);
+  }
+
   /* Por posición: A nombre, B enlace, C descripción, D especificaciones, E categoría. Se ignora la fila de títulos. */
   function clean(rows){
     if(rows.length&&/^(app|apps|nombre|nombre de la app|nombre app)$/i.test((rows[0][0]||"").trim()))rows=rows.slice(1);
@@ -65,14 +70,14 @@
       var specs=parseSpecs(r[3]);
       var catE=(r[4]||"").trim();
       if(catE)specs.unshift({k:"Categoría",v:catE});
-      return {i:i,nombre:r[0].trim(),enlace:/^https?:/i.test(link)?link:"",descripcion:(r[2]||"").trim(),specs:specs,cat:catE||catOf(specs)};
+      return {i:i,nombre:r[0].trim(),enlace:/^https?:/i.test(link)?link:"",descripcion:(r[2]||"").trim(),specs:specs,cats:splitCats(catE||catOf(specs))};
     });
   }
 
   function visible(){
     var q=norm(state.q);
     return state.apps.filter(function(a){
-      if(state.cat&&norm(a.cat)!==state.cat)return false;
+      if(state.cat&&!a.cats.some(function(c){return norm(c)===state.cat}))return false;
       return !q||norm(a.nombre+" "+a.descripcion+" "+a.specs.map(function(s){return s.k+" "+s.v}).join(" ")).indexOf(q)>=0;
     });
   }
@@ -81,8 +86,10 @@
   function renderChips(){
     var seen={},list=[];
     state.apps.forEach(function(a){
-      var k=norm(a.cat);
-      if(k&&!seen[k]){seen[k]=1;list.push({k:k,label:a.cat})}
+      a.cats.forEach(function(c){
+        var k=norm(c);
+        if(k&&!seen[k]){seen[k]=1;list.push({k:k,label:c})}
+      });
     });
     if(!list.length){$("chips").innerHTML="";return}
     list.sort(function(a,b){return a.label.localeCompare(b.label,"es")});
